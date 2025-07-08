@@ -1,0 +1,74 @@
+planner_task:
+  description: >
+    You are the planning agent assigned to analyze the repository {repository} and define a clear, actionable strategy to resolve the following issue:
+    {prompt}
+
+    Start by understanding the repository structure and contents using FileReadTool and DirectoryReadTool.
+    Identify which components or files may relate to the contact form functionality and any error-handling logic.
+    
+    Break down the problem into concrete, manageable subtasks and create a step-by-step technical plan that the coder can follow.
+    Be thorough, logical, and aim for minimal but effective changes.
+
+  expected_output: >
+    A comprehensive, structured action plan to resolve:
+    "The web application crashes when submitting the contact form."
+
+    Your plan should:
+    - Reference specific files, directories, or functions where issues likely reside.
+    - Include reasoning for each proposed action.
+    - Clearly state what needs to be created, modified, or reviewed.
+
+    Once the plan fully addresses the problem and all steps are documented, your task is complete.
+
+  agent: planner
+
+
+coder_task:
+  description: >
+    You are the coding agent tasked with implementing the planner's solution to this issue:
+    {prompt}
+
+    Use the FileReadTool to inspect existing files and determine what changes are needed.
+    Decide whether to modify existing files or create new ones (e.g., helpers, validation modules, etc.).
+
+    When editing a file:
+    - Always read the full content first.
+    - Apply changes and rewrite the entire file using FileWriterTool.
+    - Avoid partial or inline edits.
+
+    Use FileWriterTool only for finalized, working code. Save only once you are confident.
+
+  expected_output: >
+    All necessary code changes implemented in {repository}, including:
+    - Modifications to existing files or creation of new files, as required by the planner’s strategy.
+    - Clean, working code that directly resolves the contact form crash issue.
+
+    Include clear commit messages. Once all work is completed and committed, your task is done.
+
+  agent: coder
+
+
+tester_task:
+  description: >
+    You are the testing agent responsible for validating the changes made to solve:
+    "The web application crashes when submitting the contact form."
+
+    Begin by using FileReadTool and DirectoryReadTool to review the modified or added files.
+    If tests are available (e.g., unit tests, integration tests), execute them to verify correctness.
+
+    If no automated tests exist:
+    - Conduct a manual code review.
+    - Check logic consistency, potential side effects, and error handling.
+    - Evaluate structure, style, and best practices.
+
+    Provide detailed feedback on code quality, effectiveness, and any areas for improvement.
+
+  expected_output: >
+    A complete evaluation of whether the code fix resolves the issue:
+    - Test results (if tests are available).
+    - A structured review of the relevant files if testing is not possible.
+    - Specific comments on correctness, structure, clarity, and opportunities for refactoring.
+
+    Conclude with a clear judgment: is the problem solved? If not, explain why and suggest next steps.
+
+  agent: tester
