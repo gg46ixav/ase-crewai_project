@@ -36,7 +36,6 @@ class CrewaiAgents():
         return Agent(
             config=self.agents_config['planner'],  # type: ignore[index]
             verbose=True,
-            allow_delegation=True,
             tools=[DirectoryReadTool(), FileReadTool()]
         )
 
@@ -46,8 +45,7 @@ class CrewaiAgents():
             config=self.agents_config['coder'],  # type: ignore[index]
             verbose=True,
             allow_code_execution=True,
-            allow_delegation=True,
-            tools=[DirectoryReadTool(), FileReadTool(), FileWriterTool(), CodeInterpreterTool()]
+            tools=[FileWriterTool()]
         )
 
     @agent
@@ -56,8 +54,7 @@ class CrewaiAgents():
             config=self.agents_config['tester'],  # type: ignore[index]
             verbose=True,
             allow_code_execution=True,
-            allow_delegation=True,
-            tools=[DirectoryReadTool(), FileReadTool(), CodeInterpreterTool()]
+            tools=[CodeInterpreterTool()]
         )
 
     # To learn more about structured task outputs,
@@ -94,7 +91,7 @@ class CrewaiAgents():
             tasks=self.tasks,  # Automatically created by the @task decorator
             process=Process.sequential,
             memory=False,
-            verbose=True,
+            verbose=True
             # process=Process.hierarchical, # In case you wanna use that instead https://docs.crewai.com/how-to/Hierarchical/
         )
 

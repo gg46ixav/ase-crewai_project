@@ -39,7 +39,7 @@ def handle_task(index):
     else:
         print(f"Repo {repo_dir} already exists – skipping clone.")
 
-    subprocess.run(["git", "checkout", commit_hash], cwd=repo_dir, check=True, env=env)
+    #subprocess.run(["git", "checkout", commit_hash], cwd=repo_dir, check=True, env=env)
 
     if repo_dir and prompt:
         inputs = {
@@ -47,8 +47,10 @@ def handle_task(index):
             'prompt': prompt
         }
 
-        output = CrewaiAgents(working_directory=repo_dir).crew().kickoff(inputs=inputs)
-
+    try:
+       output = CrewaiAgents(working_directory=repo_dir).crew().kickoff(inputs=inputs)
+    except:
+        pass
 
     test_payload = {
         "instance_id": instance_id,
@@ -59,10 +61,15 @@ def handle_task(index):
 
     res = requests.post("http://localhost:8082/test", json=test_payload)
 
+    print(res.json())
+    os.chdir(start_dir)
     result_raw = res.json().get("harnessOutput", "{}")
     result_json = json.loads(result_raw)
     if not result_json:
-        raise ValueError("No data in harnessOutput – possible evaluation error or empty result")
+        with open(LOG_FILE, "a", encoding="utf-8") as log:
+            log.write(f"\n--- TESTCASE {index} ---\n")
+            log.write(f"No data in harnessOutput – possible evaluation error or empty result\n")
+            return
     instance_id = next(iter(result_json))
     tests_status = result_json[instance_id]["tests_status"]
     fail_pass_results = tests_status["FAIL_TO_PASS"]
@@ -73,7 +80,6 @@ def handle_task(index):
     pass_pass_passed = len(pass_pass_results["success"])
 
     # Log results
-    os.chdir(start_dir)
     with open(LOG_FILE, "a", encoding="utf-8") as log:
         log.write(f"\n--- TESTCASE {index} ---\n")
         log.write(f"FAIL_TO_PASS passed: {fail_pass_passed}/{fail_pass_total}\n")
@@ -82,7 +88,7 @@ def handle_task(index):
 
 
 def run():
-    for i in range(1, 31):
+    for i in range(1,31):
         handle_task(i)
 
 if __name__ == "__main__":
